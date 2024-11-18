@@ -90,10 +90,10 @@ SELECT * FROM employees WHERE salary >=15000;
 -- 입사일이 2008-01-01 이후인 사원들의 이름과 입사일 출력 
 SELECT CONCAT(first_name, " ", last_name) As name, hire_date As "입사일" FROM employees WHERE hire_date > '2008-01-01';
 
--- 급여가 10000미만이거나 17000초과인 사원의 이름과 급여를 출력
+-- 급여가 10000 미만이거나 17000 초과인 사원의 이름과 급여를 출력
 SELECT CONCAT(first_name, " ", last_name) As "이름", salary As "급여" FROM employees WHERE salary < 10000 OR salary > 17000;
 
--- 급여가 10000이상이거나 17000이하인 사원의 이름과 급여를 출력
+-- 급여가 10000 이상이거나 17000 이하인 사원의 이름과 급여를 출력
 SELECT CONCAT(first_name, " ", last_name) As "이름", salary As "급여" FROM employees WHERE salary >= 10000 AND salary <= 17000;
 -- BETWEEN 연산자 
 SELECT CONCAT(first_name, " ", last_name) As "이름", salary As "급여" FROM employees WHERE salary BETWEEN 10000 AND 17000;
@@ -133,3 +133,105 @@ SELECT first_name, salary FROM employees WHERE LOWER(first_name) LIKE "_a%";
 SELECT first_name, department_id, salary FROM employees ORDER BY department_id ASC;	-- ASC는 생략 가능(기본값)
 -- 정렬 기준은 여러 컬럼에 지정할 수 있음
 SELECT * FROM employees ORDER BY first_name, hire_date DESC LIMIT 10;
+
+-- 급여가 15000 이하인 직원들 중에서 목록을 급여의 내림차순으로 출력
+SELECT * FROM employees WHERE salary <=15000 ORDER BY salary DESC;
+-- 부서번호를 오름차순으로 정렬하고 
+-- 같은 부서 사람들은 급여가 높은 사람부터
+-- 이름, 부서번호, 급여 출력
+SELECT first_name, department_id, salary FROM employees ORDER BY department_id, salary DESC;
+
+----------------------
+-- 문자열 단일행 함수
+----------------------
+SELECT first_name, last_name, 
+	CONCAT(first_name, " ", last_name),
+	LOWER(first_name), LCASE(first_name),
+    UPPER(first_name), UCASE(first_name) FROM employees;
+    
+SELECT '     MySQL     ', "*****Database*****" FROM employees;
+SELECT LTRIM('     MySQL     ') As "LTRIM", 
+	RTRIM('     MySQL     ') As "RTRIM", 
+	TRIM(BOTH '*' FROM "*****Database*****") As "TRIM", 
+    TRIM(LEADING '*' FROM "*****Database*****") As "LEADING TRIM", 
+    TRIM(TRAILING '*' FROM "*****Database*****") As "TRAILING TRIM" 
+FROM DUAL;
+    
+SELECT "Oracle Database", 
+	LENGTH("Oracle Database"),  -- 1 Base(1부터 시작)
+    SUBSTRING("Oracle Database", 8, 4),
+    SUBSTRING("Oracle Database", -8, 8)	-- 음수 인덱싱(뒤에서부터)
+FROM DUAL;
+    
+SELECT REPLACE("Sad Day", "Sad", "Happy"),
+	LPAD(first_name, 20, '*'),
+    RPAD(first_name, 20, '*')
+FROM employees;
+
+------------------------
+-- 수치형 단일행 함수
+------------------------
+SELECT ABS(-3.14),	-- 절대값
+	CEILING(3.14),	-- 소수점을 올림(천장)
+	FLOOR(3.14),	-- 소수점을 버림(바닥)
+    MOD(7, 3),		-- 나눗셈의 나머지 
+    POWER(2, 4),	-- 제곱
+    ROUND(3.5),		-- 반올림
+    ROUND(3.56, 1),	-- 반올림(소수점 1자리까지)
+    TRUNCATE(3.56, 1)	-- 내림(소수점 1자리까지)
+FROM DUAL;
+
+SELECT SIGN(-10),
+	SIGN(0),
+    SIGN(10),
+    GREATEST(2, 1, 0),
+    GREATEST(4.0, 5.0, 3.0),
+    GREATEST('B', 'A', 'C'),
+    LEAST(2, 1, 0),
+	LEAST(4.0, 5.0, 3.0),
+    LEAST('B', 'A', 'C')
+FROM DUAL;
+
+----------------------------
+-- 날짜형 단일행 함수
+----------------------------
+
+SELECT CURDATE(), CURRENT_DATE,
+	CURTIME(), CURRENT_TIME,
+    CURRENT_TIMESTAMP(),
+    NOW(), SYSDATE()
+FROM DUAL;
+
+-- EXTRACT 함수: 날짜 혹은 시간에서 특정 요소 추출
+SELECT EXTRACT(YEAR FROM '2024-11-18') FROM DUAL;
+
+-- 모든 직원들의 입사년도 조회
+SELECT first_name, hire_date, EXTRACT(YEAR FROM hire_date)As 입사년도 FROM employees;
+
+-- 2008년 이후에 입사한 직원 목록 출력 
+SELECT first_name, hire_date, EXTRACT(YEAR FROM hire_date)As hire_year FROM employees WHERE EXTRACT(YEAR FROM hire_date) >= 2008;
+
+-- DATE_FORMAT: 날짜 출력 형식 지정 
+SELECT DATE_FORMAT(CURDATE(), '%W %M %Y'), DATE_FORMAT(CURDATE(), '%Y. %m. %d') FROM DUAL;
+
+-- PERIOD_DIFF: 두 날짜 정보 사이의 간격값을 반환
+-- 직원들이 지금까지 몇 개월 근속했는가
+SELECT first_name, 
+	DATE_FORMAT(CURDATE(), '%Y%m') As 현재시간,
+	DATE_FORMAT(hire_date, '%Y%m') As 입사일,
+	PERIOD_DIFF(DATE_FORMAT(CURDATE(), '%Y%m'), DATE_FORMAT(hire_date, '%Y%m')) As 근속일수
+FROM employees;
+
+-- DATE_ADD, DATE_SUB: 특정 간격을 더하거나 뺄 수 있다.
+SELECT first_name, hire_date,
+	DATE_ADD(hire_date, INTERVAL 1 YEAR),
+    DATE_SUB(hire_date, INTERVAL 1 YEAR)
+FROM employees;
+
+-- CAST: 변환 
+SELECT CAST(now() AS DATE);
+SELECT CAST("123" AS UNSIGNED);	-- 문자열 -> UNSIGNED INT
+
+-- CONVERT 함수로 대신할 수 있음
+SELECT CONVERT(now(), DATE) FROM DUAL;
+SELECT CONVERT("123", UNSIGNED) FROM DUAL;
