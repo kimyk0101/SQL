@@ -10,7 +10,7 @@ SELECT DATABASE(); 	--	선택된 DB 확인
 DESCRIBE employees;
 DESCRIBE departments;
 
-가장 기본적인 SELECT의 형태: 전체 데이터(모든 컬럼, 모든 레코드)
+-- 가장 기본적인 SELECT의 형태: 전체 데이터(모든 컬럼, 모든 레코드)
 SELECT * FROM employees; -- 107 rows
 SELECT * FROM departments; -- 27 rows
 -- 테이블 내 정의된 모든 컬럼을 Projection
@@ -51,3 +51,85 @@ SELECT first_name, salary, salary * NULL FROM employees;
 -- NULL이 포함된 산술식의 결과는 항상 NULL
 SELECT salary, ISNULL(salary * NULL) FROM employees;
 SELECT salary, NOT ISNULL(salary * NULL) FROM employees;
+
+--
+SELECT first_name, salary, salary * 12 As 연봉 FROM employees; 
+-- 커미션까지 포함한 최종 급여
+SELECT first_name, salary, commission_pct, salary + salary * commission_pct 최종급여 FROM employees;
+
+-- COALESCE or IFNULL
+-- COALESCE (ANSI-SQL): 주어진 인수 중, NULL이 아닌 첫번째 값
+SELECT COALESCE(NULL, NULL, "A", "B");
+SELECT first_name, salary, commission_pct, salary + salary * COALESCE(commission_pct, 0) FROM employees;
+
+-- IFNULL (MySQL): 두 개의 인수 중 첫번째 값이 NULL이면 두번째 값
+SELECT IFNULL(NULL, "대체값");
+SELECT first_name, salary, commission_pct, salary + salary * IFNULL(commission_pct, 0) FROM employees;
+
+-- FULL Name과 salary
+SELECT first_name + " " + last_name, salary FROM employees;
+-- 문자열 합칠때는 CONCAT 함수를 사용
+SELECT CONCAT(first_name, " ", last_name) As 이름 FROM employees;
+
+-- DISTINCT
+SELECT job_id FROM employees;	-- 107개
+SELECT DISTINCT job_id FROM employees;	-- 19개 
+
+----------------------------
+-- WHERE
+----------------------------
+-- SELECTION을 위한 조건
+
+-- 부서번호가 10번인 부서 정보
+SELECT * FROM departments;
+SELECT * FROM departments WHERE department_id = 10;
+
+-- 급여가 15000이상인 사원의 목록을 출력
+SELECT * FROM employees WHERE salary >=15000;
+
+-- 입사일이 2008-01-01 이후인 사원들의 이름과 입사일 출력 
+SELECT CONCAT(first_name, " ", last_name) As name, hire_date As "입사일" FROM employees WHERE hire_date > '2008-01-01';
+
+-- 급여가 10000미만이거나 17000초과인 사원의 이름과 급여를 출력
+SELECT CONCAT(first_name, " ", last_name) As "이름", salary As "급여" FROM employees WHERE salary < 10000 OR salary > 17000;
+
+-- 급여가 10000이상이거나 17000이하인 사원의 이름과 급여를 출력
+SELECT CONCAT(first_name, " ", last_name) As "이름", salary As "급여" FROM employees WHERE salary >= 10000 AND salary <= 17000;
+-- BETWEEN 연산자 
+SELECT CONCAT(first_name, " ", last_name) As "이름", salary As "급여" FROM employees WHERE salary BETWEEN 10000 AND 17000;
+
+-- IN 연산자
+-- 10, 20, 30번 부서에 소속된 직원 정보 확인
+SELECT employee_id, first_name, department_id FROM employees WHERE department_id = 10 OR department_id = 20 OR department_id = 30;
+SELECT employee_id, first_name, department_id FROM employees WHERE department_id IN(10, 20, 30);
+
+-- 10, 20, 30번 부서가 아닌 부서에 소속된 직원들 (<> = !=)
+SELECT employee_id, first_name, department_id FROM employees WHERE department_id <> 10 AND department_id != 20 AND department_id != 30;
+SELECT employee_id, first_name, department_id FROM employees WHERE department_id NOT IN(10, 20, 30);
+
+-- WHERE 절에서 NULL 체크
+-- IS NULL로 체크, = NULL은 불가
+SELECT first_name, commission_pct FROM employees WHERE commission_pct IS NULL;	-- = NULL로 하면 안됨 
+SELECT first_name, commission_pct FROM employees WHERE commission_pct = NULL;	-- 잘못된 NULL 체크
+
+----------------------
+-- LIKE
+----------------------
+-- 부분 문자열 검색
+-- Wildcard
+-- %: 정해지지 않은 길이의 문자열 
+-- _: 문자 1개 
+
+-- 이름에 am을 포함한 사원의 이름과 급여를 출력
+SELECT first_name, salary FROM employees WHERE LOWER(first_name) LIKE "%am%";
+-- 이름에 두번째 글자가 a인 사원의 이름과 급여
+SELECT first_name, salary FROM employees WHERE LOWER(first_name) LIKE "_a%";
+
+----------------------
+-- ORDER BY
+----------------------
+
+-- 부서번호를 오름차순으로 정렬하고 이름, 부서번호, 급여 출력
+SELECT first_name, department_id, salary FROM employees ORDER BY department_id ASC;	-- ASC는 생략 가능(기본값)
+-- 정렬 기준은 여러 컬럼에 지정할 수 있음
+SELECT * FROM employees ORDER BY first_name, hire_date DESC LIMIT 10;
