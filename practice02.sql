@@ -62,6 +62,7 @@ SELECT r.region_name AS 지역명, c.country_name AS 나라명
 -- 문제5.
 SELECT e.employee_id AS 사번, e.first_name AS 이름, e.hire_date AS 채용일, m.first_name AS 매니저이름, m.hire_date AS 매니저입사일
 	FROM employees e JOIN employees m ON e.employee_id = m.manager_id WHERE m.hire_date > e.hire_date;
+-- e.employee_id = m.manager_id : 잘못됨
 
 SELECT e.employee_id AS 사번, e.first_name AS 이름, e.hire_date AS 채용일, m.first_name AS 매니저이름, m.hire_date AS 매니저입사일
 	FROM employees e INNER JOIN employees m ON e.manager_id = m.employee_id WHERE m.hire_date > e.hire_date;
@@ -89,6 +90,13 @@ SELECT d.department_id AS 부서번호, d.department_name AS 부서명,
 	m.first_name AS 매니저이름, l.city AS 도시, c.country_name AS 나라명, r.region_name AS 지역명
 	FROM departments d, employees e JOIN employees m ON e.employee_id = m.manager_id, locations l, countries c, regions r
     WHERE d.department_id = e.department_id AND d.location_id = l.location_id AND l.country_id = c.country_id AND c.region_id = r.region_id;
+-- e.employee_id = m.manager_id 잘못됨
+-- e.manager_id = m.employee_id > d.department_id = e.department_id 두 번 연결할 필요 없이 d.manager_id = e.manager_id
+-- 꼭 PK와 FK가 연결될 필요 없음
+
+    SELECT d.department_id AS 부서번호, d.department_name AS 부서명, e.first_name AS 매니저이름, l.city AS 도시, c.country_name AS 나라명, r.region_name AS 지역명
+	FROM departments d, employees e, locations l, countries c, regions r
+    WHERE d.manager_id = e.manager_id AND d.location_id = l.location_id AND l.country_id = c.country_id AND c.region_id = r.region_id;
     
     SELECT d.department_id AS 부서번호, d.department_name AS 부서명,  
 		m.first_name AS 매니저이름, l.city AS 도시, c.country_name AS 나라명, r.region_name AS 지역명
@@ -103,6 +111,10 @@ SELECT d.department_id AS 부서번호, d.department_name AS 부서명,
 SELECT e.employee_id AS 사번, e.first_name AS 이름, d.department_name AS 부서명, m.first_name AS 매니저이름
 	FROM employees e LEFT JOIN employees m ON  e.manager_id = m.employee_id 
 	LEFT JOIN departments d ON e.department_id = d.department_id;
+    
+SELECT e.employee_id AS 사번, e.first_name AS 이름, d.department_name AS 부서명, m.first_name AS 매니저이름
+	FROM employees e LEFT JOIN departments d ON  e.department_id = d.department_id 
+	LEFT JOIN employees m ON e.manager_id = m.employee_id;
     
     
 -- 문제9-1.
