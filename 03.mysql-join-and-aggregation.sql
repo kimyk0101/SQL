@@ -82,9 +82,7 @@ SELECT * FROM employees;
 SELECT emp.employee_id, emp.manager_id, man.employee_id, man.first_name
 	FROM employees emp LEFT OUTER JOIN employees man ON emp.manager_id = man.employee_id;
     
-  
-  
-  
+    
   
 ----------------------------------
 -- Aggregation (집계)
@@ -143,3 +141,116 @@ FROM employees 						-- (1)
 GROUP BY department_id 				-- (2)
 	HAVING AVG(salary) >= 7000 		-- (3)
 ORDER BY department_id;				-- (4)
+
+
+---------------------------
+-- SUBQUERY
+---------------------------
+
+-- Susan보다 많은 급여를 받는 직원의 목록
+
+-- Query 1. 이름이 Susan인 직원의 급여를 뽑는 쿼리
+SELECT salary FROM employees WHERE first_name='Susan';	-- 6500
+
+-- Query 2. 급여를 6500보다 많이 맏는 직원의 목록을 뽑는 쿼리
+SELECT first_name, salary FROM employees WHERE salary > 6500;	-- 49row
+
+-- Query 3. 쿼리의 결합 
+SELECT first_name, salary FROM employees 
+	WHERE salary > (SELECT salary FROM employees WHERE first_name='Susan');	-- 49row
+
+-- 연습문제    
+-- Den보다 많은 급여를 받는 사원의 이름과 급여 출력
+
+-- Query 1. 이름이 Den인 직원의 급여를 뽑는 쿼리
+SELECT salary FROM employees WHERE first_name='Den';	-- 11000
+
+-- Query 2. 급여를 11000보다 많이 맏는 직원의 목록을 뽑는 쿼리
+SELECT first_name, salary FROM employees WHERE salary > 11000;	-- 10row
+
+-- Query 3. 쿼리의 결합 
+SELECT first_name, salary FROM employees 
+	WHERE salary > (SELECT salary FROM employees WHERE first_name='Den');	-- 10row
+  
+  
+-- 급여를 가장 적게 받는 사람의 이름, 급여, 사원번호를 출력
+
+-- Query 1. 가장 적은 급여
+SELECT MIN(salary) FROM employees;	-- 2100
+
+-- Query2. Query 1의 결과보다 salary가 작은 직원 목록
+SELECT employee_id, first_name, salary FROM employees WHERE salary = 2100;
+
+-- Query 3. 쿼리의 결합 
+SELECT employee_id, first_name, salary FROM employees 
+	WHERE salary = (SELECT MIN(salary) FROM employees);
+
+    
+-- 평균 급여보다 적게 받는 사원의 이름과 급여를 출력
+
+-- Query 1. 평균 급여
+SELECT AVG(salary) FROM employees;	-- 6462
+
+-- Query2. Query 1의 결과보다 salary가 적은 직원 목록
+SELECT employee_id, salary FROM employees WHERE salary < 6462;
+
+-- Query 3. 쿼리의 결합 
+SELECT employee_id, salary FROM employees 
+	WHERE salary < (SELECT AVG(salary) FROM employees);
+    
+
+-- 다중행 서브쿼리
+-- 서브쿼리의 결과 레코드가 둘 이상일 때는 단순 비교연산자는 사용 불가
+-- 서브쿼리 결과가 둘 이상일 때는 집합연산자(IN, ANY, ALL, EXISTS) 사용
+
+SELECT salary FROM employees WHERE department_id = 110;	-- 2row
+
+-- 110번 부서 사람들이 받는 급여와 동일한 급여를 받는 사원들 (salary = 12008 or 8300)
+SELECT first_name, salary FROM employees 
+	WHERE salary = (SELECT salary FROM employees WHERE department_id = 110);	-- 단일쿼리가 아니라서 Error
+-- 수정
+SELECT first_name, salary FROM employees 
+	WHERE salary IN (SELECT salary FROM employees WHERE department_id = 110);
+
+-- 110번 부서 사람들이 받는 급여 중 1개 이상보다 많은 급여를 받는 사람들 (salary > 12008 or 8300)
+SELECT first_name, salary FROM employees 
+	WHERE salary > ANY (SELECT salary FROM employees WHERE department_id = 110);
+-- ANY 연산자는 비교연산자와 결합해서 작동
+-- OR 연산자와 비슷
+
+-- 110번 부서 사람들이 받는 급여 전체보다 많은 급여를 받는 사람들 (salary > 12008 and 8300)
+SELECT first_name, salary FROM employees 
+	WHERE salary > ALL (SELECT salary FROM employees WHERE department_id = 110);
+-- ALL 연산자는 비교연산자와 결합하여 사용
+-- AND 연산자와 비슷
+
+-- 서브쿼리 연습
+-- 각 부서별로 최고 급여를 받는 사원을 출력 - 조건절에 서브쿼리 사용
+-- Query 1. 각 부서의 최고급여
+SELECT department_id, MAX(salary) FROM employees GROUP BY department_id ORDER BY department_id;
+
+-- Query 2. Query 1에서 나온 department_id와 salary값을 이용하여 비교 연산 
+SELECT department_id, employee_id, first_name, salary FROM employees 
+	WHERE (department_id, salary) IN 
+		(SELECT department_id, MAX(salary) FROM employees GROUP BY department_id) ORDER BY department_id;
+        
+
+-- 각 부서별로 최고 급여를 받는 사원을 출력 - 서브쿼리 테이블 조인 사용 
+SELECT emp.department_id, emp.employee_id, emp.first_name, emp.salary FROM employees emp 
+	JOIN (SELECT department_id, MAX(salary) FROM employees GROUP BY department_id) sal
+	ON emp.department_id = sal.department_id ORDER BY emp.department_id;
+    
+SELECT emp.department_id, emp.employee_id, emp.first_name, emp.salary FROM employees emp,  
+	(SELECT department_id, MAX(salary), salary FROM employees GROUP BY department_id) sal
+	WHERE emp.department_id = sal.department_id AND emp.salary = sal.salary ORDER BY emp.department_id;
+    
+
+----------------------------
+-- LIMIT
+----------------------------
+-- LIMIT: 출력 개수의 제한
+SELECT first_name, salary FROM employees ORDER BY salary DESC LIMIT 3;	-- 앞으로부터 3개
+SELECT first_name, salary FROM employees ORDER BY salary DESC LIMIT 10, 3;	-- 앞에서 10개 건너뛰고 3개만 출력
+SELECT first_name, salary FROM employees ORDER BY salary DESC;
+
+
