@@ -117,7 +117,7 @@ SELECT COUNT(commission_pct) FROM employees;
 SELECT AVG(IFNULL(commission_pct, 0)) FROM employees;	-- 7%
 
 -- MIN/MAX
--- 월급의 최소값, 최대값, 평균, 중앙값 
+-- 월급의 최소값, 최대값, 평균 
 SELECT MIN(salary), MAX(salary), AVG(salary) FROM employees;
 
 -- 부서별로 평균 급여를 확인
@@ -143,7 +143,3 @@ FROM employees 						-- (1)
 GROUP BY department_id 				-- (2)
 	HAVING AVG(salary) >= 7000 		-- (3)
 ORDER BY department_id;				-- (4)
-
-
-
-
