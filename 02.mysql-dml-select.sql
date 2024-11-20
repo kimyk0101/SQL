@@ -71,7 +71,7 @@ SELECT first_name + " " + last_name, salary FROM employees;
 -- 문자열 합칠때는 CONCAT 함수를 사용
 SELECT CONCAT(first_name, " ", last_name) As 이름 FROM employees;
 
--- DISTINCT
+-- DISTINCT: 중복제거
 SELECT job_id FROM employees;	-- 107개
 SELECT DISTINCT job_id FROM employees;	-- 19개 
 
