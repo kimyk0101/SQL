@@ -165,7 +165,7 @@ SELECT first_name, salary FROM employees
 -- Query 1. 이름이 Den인 직원의 급여를 뽑는 쿼리
 SELECT salary FROM employees WHERE first_name='Den';	-- 11000
 
--- Query 2. 급여를 11000보다 많이 맏는 직원의 목록을 뽑는 쿼리
+-- Query 2. 급여를 11000보다 많이 받는 직원의 목록을 뽑는 쿼리
 SELECT first_name, salary FROM employees WHERE salary > 11000;	-- 10row
 
 -- Query 3. 쿼리의 결합 
