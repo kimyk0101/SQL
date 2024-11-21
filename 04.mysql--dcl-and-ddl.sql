@@ -149,3 +149,94 @@ SHOW CREATE TABLE book;
 
 -- RENAME
 RENAME TABLE book TO article;
+
+-- 주요 제약 조건(Constraints)
+CREATE TABLE book (
+	book_id INTEGER NOT NULL);
+INSERT INTO book VALUES(1);
+INSERT INTO book VALUES(NULL);
+-- NOT NULL: 컬럼 레벨 제약조건
+DROP TABLE book;
+-- UNIQUE
+CREATE TABLE book (
+	book_id INTEGER, UNIQUE(book_id));
+    
+INSERT INTO book VALUES(1);
+INSERT INTO book VALUES(2);
+INSERT INTO book VALUES(2);
+-- UNIQUE: 유일한 값, 테이블 레벨, 인덱스 자동 부여
+DROP TABLE book;
+
+-- PK 
+CREATE TABLE book (
+	book_id INTEGER PRIMARY KEY AUTO_INCREMENT,	-- 자동으로 숫자를 하나씩 늘림 
+	book_title VARCHAR(100));
+    
+INSERT INTO book (book_title) VALUES ('홍길동전');
+INSERT INTO book (book_title) VALUES ('전우치전');
+INSERT INTO book (book_title) VALUES ('춘향전');
+
+SELECT * FROM book;
+-- PRIMARY KEY: NOT NULL + UNIQUE -> 자동 인덱스 
+DROP TABLE book;
+
+-- CHECK
+CREATE TABLE book (
+	rate INTEGER CHECK (rate IN (1, 2, 3, 4, 5)));
+    
+INSERT INTO book VALUES(1);
+INSERT INTO book VALUES(6);	-- Error: 체크 조건에 위배
+
+DROP TABLE book;
+
+-- 제약조건 포함 book 테이블 생성
+CREATE TABLE book (
+	book_id INTEGER PRIMARY KEY AUTO_INCREMENT COMMENT '도서 아이디',
+    book_title VARCHAR(50) NOT NULL COMMENT '도서 제목',
+    author VARCHAR(20) NOT NULL COMMENT '작가명',
+    rate INTEGER CHECK (rate IN (1, 2, 3, 4, 5)) COMMENT '별점',
+    pub_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '출간일')
+    COMMENT '도서 정보';
+    
+-- author 테이블 생성 
+CREATE TABLE author (	-- 같은 저자가 여러 책을 쓰면 데이터 관리가 안되기 때문에 따로 테이블을 만들어서 관리하고 참조할 수 있도록
+	author_id INTEGER PRIMARY KEY COMMENT '작가 아이디',
+    ahthor_name VARCHAR(100) NOT NULL COMMENT '작가 이름',
+    author_desc VARCHAR(256) COMMENT '작가 설명')
+    COMMENT '작가 정보';
+
+-- book 테이블의 author 컬럼 삭제
+-- -> author_id (FK) -> author.author_id 참조
+ALTER TABLE book DROP author;
+
+-- book 테이블의 book_title 컬럼 뒤에 author_id 추가
+ALTER TABLE book ADD author_id INTEGER AFTER book_title;	-- 데이터 타입 맞춰주기(FK)/BEFORE rate도 가능
+
+-- FOREIGN KEY 추가
+ALTER TABLE book ADD CONSTRAINT c_book_fk 
+	FOREIGN KEY (author_id) REFERENCES author(author_id)
+		ON DELETE SET NULL;
+        
+SHOW CREATE TABLE book;
+
+DROP TABLE book;
+
+-- 테이블 생성 시점에 Constraints 부여
+CREATE TABLE book (
+	book_id INTEGER PRIMARY KEY COMMENT '도서 아이디',
+    book_title VARCHAR(50) NOT NULL COMMENT '도서 제목',
+    author_id INTEGER,
+    rate INTEGER CHECK(rate IN (1, 2, 3, 4, 5)) COMMENT '별점',
+    pub_date DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '출간일',
+    FOREIGN KEY (author_id) REFERENCES
+		author(author_id) ON DELETE SET NULL
+) COMMENT '도서 정보';
+
+
+ALTER TABLE author DROP ahthor_name;
+
+ALTER TABLE author ADD author_name VARCHAR(100) NOT NULL COMMENT '작가 이름' AFTER author_id; 
+
+
+
+
