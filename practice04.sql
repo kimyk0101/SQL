@@ -83,11 +83,13 @@ SELECT j.job_title, SUM(salary) FROM employees e JOIN jobs j
     
 -- 문제 7.
 -- 부서별 평균 월급
-SELECT AVG(salary) FROM employees GROUP BY department_id;
+SELECT AVG(salary), department_id FROM employees GROUP BY department_id;
 
 -- 자신의 부서 평균 월급보다 월급이 많은 직원 
-SELECT employee_id, first_name, salary FROM employees 
-	WHERE salary > ANY (SELECT AVG(salary) FROM employees GROUP BY department_id);
+SELECT employee_id, first_name, salary FROM employees e JOIN
+	(SELECT AVG(salary), department_id FROM employees GROUP BY department_id) avs
+    ON e.department_id = avs.department_id 
+	WHERE e.salary > avs.AVG(salary); 
     
     
 -- 문제 8. 
