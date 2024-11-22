@@ -45,5 +45,60 @@ DELETE FROM author WHERE author_id=3;
     
 SELECT * FROM author;
 
+
+
+---------------------------
+-- Transaction
+---------------------------
+-- Workbench 보호 장치 해제
+-- Edit > Preferences > SQL Editor > Safe Update 해제 > Workbench 재시작
+
+SELECT @@autocommit;	-- 1: AUTOCOMMIT ON, 0: AUTOCOMMIT OFF
+
+SET autocommit=0;	-- AUTOCOMMIT OFF
+SELECT @@autocommit;
+
+CREATE TABLE trasactions (
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    log VARCHAR(100),
+    logdate DATETIME DEFAULT now()
+);
+
+START TRANSACTION;
+RENAME TABLE trasactions TO transactios;
+RENAME TABLE transactios TO transactions;
+INSERT INTO transactions (log) VALUES ('1번째 INSERT');
+SELECT * FROM transactions;
+
+INSERT INTO transactions (log) VALUES ('2번째 INSERT');
+SELECT * FROM transactions;
+
+-- 세이브포인트 설정
+SAVEPOINT x1;
+SELECT * FROM transactions;
+
+INSERT INTO transactions (log) VALUES ('3번째 INSERT');
+SELECT * FROM transactions;
+
+ROLLBACK TO x1;
+SELECT * FROM transactions;
+
+-- 트랜잭션 진행중
+
+-- 변경사항 반영 (cmd에도 나타남)
+COMMIT;
+SELECT * FROM transactions;
  
- 
+START TRANSACTION;
+
+DELETE FROM transactions;	-- cmd 아직 남아있는 상태
+SELECT * FROM transactions; 
+
+ROLLBACK;
+SELECT * FROM transactions;	-- 다시 돌아옴
+
+-- TRUNCATE 는 TRANSACTION의 대상이 아님
+TRUNCATE TABLE transactions;
+SELECT * FROM transactions;	-- 다 날아감, 되돌릴 수 없음 (속도가 빠르기 때문에 대량의 데이터를 지울 때 좋음)
+
+-- Safe Update 원상 복구
