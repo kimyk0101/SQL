@@ -27,7 +27,13 @@ SELECT employee_id AS 직원번호, first_name AS 이름, salary AS 월급, AVG(
 	FROM employees GROUP BY employee_id
     HAVING salary >= (SELECT AVG(salary) FROM employees) 
 		AND salary <= (SELECT MAX(salary) FROM employees)ORDER BY salary;
-        
+   
+SELECT employee_id, salary 
+	FROM employees GROUP BY employee_id, salary 
+	HAVING salary >= (SELECT MIN(salary) FROM employees) 
+	AND salary <= (SELECT MAX(salary) FROM employees)ORDER BY salary; 
+    
+SELECT MIN(salary), MAX(salary) FROM employees;
 
 -- 문제 3. 
 -- Steven king이 소속된 부서
