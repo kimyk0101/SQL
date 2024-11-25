@@ -82,8 +82,11 @@ SELECT * FROM employees;
 SELECT emp.employee_id, emp.manager_id, man.employee_id, man.first_name
 	FROM employees emp LEFT OUTER JOIN employees man ON emp.manager_id = man.employee_id;
     
-    
+ SELECT emp.first_name, emp.last_name, man.first_name
+	FROM employees emp JOIN employees man ON emp.manager_id = man.employee_id 
+	ORDER BY emp.first_name;
   
+
 ----------------------------------
 -- Aggregation (집계)
 ----------------------------------
