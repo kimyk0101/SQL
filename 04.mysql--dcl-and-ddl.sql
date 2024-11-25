@@ -237,6 +237,13 @@ ALTER TABLE author DROP ahthor_name;
 
 ALTER TABLE author ADD author_name VARCHAR(100) NOT NULL COMMENT '작가 이름' AFTER author_id; 
 
+DROP TABLE author;
 
-
+-- author 테이블 생성 
+CREATE TABLE author (	-- 
+	author_id INTEGER PRIMARY KEY AUTO_INCREMENT COMMENT '작가 아이디',
+    author_name VARCHAR(100) NOT NULL COMMENT '작가 이름',
+    author_desc VARCHAR(256) COMMENT '작가 설명',
+    regdate DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '작가 정보 등록일')
+    COMMENT '작가 정보';
 
