@@ -36,3 +36,4 @@ CMD ["mysqld"]
 
 # run
 # docker run -d --name mysql-container -p 13306:3306 --env-file .env -v mysql-data:/var/lib/mysql mysql-custom
+# docker run -d --name mysql-container -p 13306:3306 --network my-network  --env-file .env -v mysql-data:/var/lib/mysql mysql-custom 
