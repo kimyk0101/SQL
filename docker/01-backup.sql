@@ -1,5 +1,5 @@
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
---
+-- 
 -- Host: localhost    Database: webdb
 -- ------------------------------------------------------
 -- Server version	8.0.40
